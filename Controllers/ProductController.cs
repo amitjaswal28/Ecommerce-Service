@@ -1,88 +1,68 @@
-﻿using Ecommerce.API.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Ecommerce.API.DTOs;
 
-namespace Ecommerce.API.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class ProductController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ProductController : ControllerBase
+    private readonly IProductService _service;
+
+    public ProductController(IProductService service)
     {
-        private readonly AppDbContext _DbContext;
-
-        public ProductController(AppDbContext context)
-        {
-            _DbContext = context;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetProducts()
-        {
-            var products = await _context.Products.ToListAsync();
-            return Ok(products);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-                return NotFound();
-
-            return Ok(product);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateProduct(Product product)
-        {
-            product.CreatedAt = DateTime.Now;
-
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-
-            return Ok(product);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-                return NotFound();
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return Ok("Deleted");
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product updatedProduct)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-            {
-                updatedProduct.Id = id;
-                updatedProduct.CreatedAt = DateTime.Now;
-
-                _context.Products.Add(updatedProduct);
-                await _context.SaveChangesAsync();
-
-                return Ok(updatedProduct);
-            }
-
-            product.Name = updatedProduct.Name;
-            product.Price = updatedProduct.Price;
-            product.Description = updatedProduct.Description;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(product);
-        }
-
-
+        _service = service;
     }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetProducts()
+    {
+        return Ok(await _service.GetAllProductsAsync());
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ProductResponseDto>> GetProduct(int id)
+    {
+        var product = await _service.GetProductByIdAsync(id);
+        if (product == null)
+            return NotFound();
+
+        return Ok(product);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ProductResponseDto>> CreateProduct(ProductCreateDto dto)
+    {
+        var product = await _service.CreateProductAsync(dto);
+        return Ok(product);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<ProductResponseDto>> UpdateProduct(int id, ProductUpdateDto dto)
+    {
+        var product = await _service.UpdateProductAsync(id, dto);
+        if (product == null)
+            return NotFound();
+
+        return Ok(product);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteProduct(int id)
+    {
+        var deleted = await _service.DeleteProductAsync(id);
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpGet("filter")]
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> FilterProducts(
+     string? name,
+     decimal? minPrice,
+     decimal? maxPrice)
+    {
+        var products = await _service.GetFilteredProductsAsync(name, minPrice, maxPrice);
+        return Ok(products);
+    }
+
 }
