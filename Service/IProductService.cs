@@ -7,5 +7,5 @@ public interface IProductService
     Task<ProductResponseDto> CreateProductAsync(ProductCreateDto dto);
     Task<ProductResponseDto> UpdateProductAsync(int id, ProductUpdateDto dto);
     Task<bool> DeleteProductAsync(int id);
-    Task<IEnumerable<ProductResponseDto>> GetFilteredProductsAsync(string? name, decimal? minPrice, decimal? maxprice);
+    Task<IEnumerable<ProductResponseDto>> GetFilteredProductsAsync(string? name, decimal? minPrice, decimal? maxprice, string? sortBy, int PageNumber, int PageSize);
 }

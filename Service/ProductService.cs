@@ -88,9 +88,9 @@ public class ProductService : IProductService
         return await _repository.DeleteAsync(id);
     }
 
-    public async Task<IEnumerable<ProductResponseDto>> GetFilteredProductsAsync(string? name, decimal? minPrice, decimal? maxprice)
+    public async Task<IEnumerable<ProductResponseDto>> GetFilteredProductsAsync(string? name, decimal? minPrice, decimal? maxprice, string? sortBy, int PageNumber, int PageSize)
     {
-        var products = await _repository.GetFilterAsync(name, minPrice, maxprice);
+        var products = await _repository.GetFilterAsync(name, minPrice, maxprice,sortBy,PageNumber,PageSize);
         return products.Select(p => new ProductResponseDto
         {
             Id = p.Id,

@@ -59,9 +59,12 @@ public class ProductController : ControllerBase
     public async Task<ActionResult<IEnumerable<ProductResponseDto>>> FilterProducts(
      string? name,
      decimal? minPrice,
-     decimal? maxPrice)
+     decimal? maxPrice,
+     string? sortBy,
+     int pageNumber=1,
+     int pageSize=5)
     {
-        var products = await _service.GetFilteredProductsAsync(name, minPrice, maxPrice);
+        var products = await _service.GetFilteredProductsAsync(name, minPrice, maxPrice,sortBy,pageNumber,pageSize);
         return Ok(products);
     }
 

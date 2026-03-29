@@ -46,7 +46,7 @@ public class ProductRepository : IProductRepository
         await _context.SaveChangesAsync();
         return true;
     }
-    public async Task<IEnumerable<Product>> GetFilterAsync(string? name, decimal? minPrice, decimal? maxPrice)
+    public async Task<IEnumerable<Product>> GetFilterAsync(string? name, decimal? minPrice, decimal? maxPrice, string? sortBy, int PageNumber, int PageSize)
     {
         var query = _context.Products.AsQueryable();
 
@@ -62,6 +62,25 @@ public class ProductRepository : IProductRepository
         {
             query=query.Where(x=>x.Price <= maxPrice.Value);
         }
+        if (!string.IsNullOrEmpty(sortBy))
+        {
+            if (sortBy == "name")
+            {
+                query = query.OrderBy(x => x.Name);
+            }
+            else if (sortBy == "price")
+            {
+                query = query.OrderBy(x => x.Price);
+            }
+            else if (sortBy == "priceDsc")
+            {
+                query = query.OrderByDescending(x => x.Price);
+            }
+        }
+        if (PageNumber < 1)
+            PageNumber = 1;
+
+        query = query.Skip((PageNumber - 1) * PageSize).Take(PageSize);
 
         return await query.ToListAsync();
     }

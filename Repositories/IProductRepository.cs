@@ -10,6 +10,6 @@ namespace Ecommerce.API.Repositories
         Task<Product> CreateAsync(Product product);
         Task<Product> UpdateAsync(Product product);
         Task<bool> DeleteAsync(int id);
-        Task<IEnumerable<Product>> GetFilterAsync(string? name, decimal? minPrice , decimal? maxPrice);
+        Task<IEnumerable<Product>> GetFilterAsync(string? name, decimal? minPrice , decimal? maxPrice, string? sortBy, int PageNumber, int PageSize);
     }
 }
